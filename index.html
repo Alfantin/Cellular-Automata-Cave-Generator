@@ -1,0 +1,84 @@
+<html>
+<head>
+<title>Cellular Automata Demo</title>
+</head>
+<body style="margin:0;">
+    <canvas id="ekran"></canvas>
+    <script type="text/javascript">
+
+        //parametreler
+        var hucreEbat = 12;
+        var aktifLimit = 4;
+        var pasifLimit = 4;
+        var tekrar = 8;
+        var olasilik = 0.46;
+
+        //canvas hazırla
+        var genislik = Math.floor(window.innerWidth / hucreEbat);
+        var yukseklik = Math.floor(window.innerHeight / hucreEbat);
+        var canvas = document.getElementById("ekran");
+        var ctx = canvas.getContext("2d");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        //rasgele harita oluştur
+        var harita = new Array(genislik);
+        var yeniHarita = new Array(genislik);
+        for (var x = 0; x < genislik; x++) {
+            harita[x] = new Array(yukseklik);
+            yeniHarita[x] = new Array(yukseklik);
+            for (var y = 0; y < yukseklik; y++) {
+                harita[x][y] = Math.random() > olasilik;
+            }
+        }
+
+        //n kere haritayı işle
+        for (var n = 0; n < tekrar; n++) {
+
+            //tüm hücreleri dolaş
+            for (var x = 0; x < genislik; x++) {
+                for (var y = 0; y < yukseklik; y++) {
+
+                    //hücrenin aktif komşuları say
+                    var aktifKomsuSayisi = 0;
+                    for (var nx = x - 1; nx <= x + 1; nx++) {
+                        for (var ny = y - 1; ny <= y + 1; ny++) {
+
+                            //koordinat hücenin kendisi atla
+                            if (nx == x && ny == y) continue;
+
+                            //koordinat harita dışı atla
+                            if (nx < 0 || ny < 0 || nx >= genislik || ny >= yukseklik) continue;
+
+                            //bu komşu aktifse komşu sayısını 1 arttır
+                            if (harita[nx][ny]) aktifKomsuSayisi++;
+                        }
+                    }
+
+                    //hücre aktif ama yeterince komşusu yoksa pasif yap, yada hüre pasif ama yeterince komşusu varsa aktif yap
+                    yeniHarita[x][y] = harita[x][y] ? (aktifKomsuSayisi >= pasifLimit) : (aktifKomsuSayisi > aktifLimit);
+
+
+                }
+            }
+
+            //yeni haritaya geç
+            var tmpharita = harita;
+            harita = yeniHarita;
+            yeniHarita = tmpharita;
+
+        }
+
+        //haritayı çiz
+        ctx.fillStyle = 'black';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (var x = 0; x < genislik; x++) {
+            for (var y = 0; y < yukseklik; y++) {
+                ctx.fillStyle = harita[x][y] ? 'gray' : 'black';
+                ctx.fillRect(x * hucreEbat, y * hucreEbat, hucreEbat, hucreEbat);
+            }
+        }
+
+    </script>
+</body>
+</html>
